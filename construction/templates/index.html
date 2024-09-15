@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Index Page
+{% endblock %}
+
+{% block content %}
+    <h1>Index Page</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="project_name" placeholder="Enter project name">
+        <button type="submit">Create Project</button>
+    </form>
+
+    <!-- Меню с сохраненными проектами -->
+    <div class="project-menu">
+        <h3>Saved Projects</h3>
+        <ul>
+            {% for project in projects %}
+                <li>
+                    <a href="{% url 'formalization' pk=project.pk %}">{{ project.name }}</a>
+                    <!-- Кнопка удаления проекта -->
+                    <form method="POST" action="{% url 'delete_project' pk=project.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
