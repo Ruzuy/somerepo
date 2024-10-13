@@ -19,7 +19,7 @@ from construction import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('formalization/<int:pk>/', views.formalization, name='formalization'),
+    path('projects/<int:pk>/', views.show, name='show'),
     path('save_project/', views.save_project, name='save_project'),
     path('delete/<int:pk>/', views.delete_project, name='delete_project'),
     path('delete_defect/<int:defect_id>/', views.delete_defect, name='delete_defect'),

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}
+    Project
+{% endblock %}
+
+{% block content %}
+    <h1>Project: {{ project.name }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="project_name">Edit Project Name:</label>
+        <input type="text" id="project_name" name="project_name" value="{{ project.name }}">
+        <button type="submit" name="update_project_name">Update Name</button>
+    </form>
+
+    <h2>Defects</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="defect_name" placeholder="Enter defect name">
+        <button type="submit" name="add_defect">Add Defect</button>
+    </form>
+
+    <!-- Таблица дефектов -->
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Defect Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for defect in defects %}
+                <tr>
+                    <td>{{ defect.name }}</td>
+                    <td>
+                        <form method="post" action="{% url 'delete_defect' defect.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Experts</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="expert_name" placeholder="Enter expert name">
+        {% for defect in defects %}
+            <label>{{ defect.name }}</label>
+            <input type="number" name="rating_{{ defect.id }}" step="0.01" min="0" max="1" placeholder="Enter rating">
+        {% endfor %}
+        <button type="submit" name="add_expert">Add Expert</button>
+    </form>
+
+     <!-- Таблица для отображения экспертов и их оценок -->
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Expert Name</th>
+                {% for defect in defects %}
+                    <th>{{ defect.name }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expert_data in experts_data %}
+                <tr>
+                    <td>{{ expert_data.expert_name }}</td>
+                    {% for rating in expert_data.ratings %}
+                        <td>{% if rating %}{{ rating }}{% else %}N/A{% endif %}</td>
+                    {% endfor %}
+                    <td>
+                        <form method="post" action="{% url 'delete_expert' expert_id=expert_data.expert_id %}">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            <!-- Добавляем строку для среднего значения по каждому дефекту -->
+            <tr>
+                <td><strong>Average</strong></td>
+                {% for avg in defect_averages %}
+                    <td><strong>{{ avg|floatformat:2 }}</strong></td>
+                {% endfor %}
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-bottom: 20px;"></div>
+
+<h2>Delta Table</h2>
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Expert Name</th>
+            {% for defect in defects %}
+                <th>{{ defect.name }} Delta</th>
+            {% endfor %}
+            <th>AVG Delta</th> <!-- Заголовок для средней дельты эксперта -->
+            <th>Competence</th> <!-- Заголовок для компетенции -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for delta_data in deltas_data %}
+            <tr>
+                <td>{{ delta_data.expert_name }}</td>
+                {% for delta in delta_data.deltas %}
+                    <td>{{ delta|floatformat:2 }}</td>
+                {% endfor %}
+                <td>
+                    {% for expert_data in experts_data %}
+                        {% if expert_data.expert_name == delta_data.expert_name %}
+                            {{ expert_data.average_delta|floatformat:2 }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for expert_data in experts_data %}
+                        {% if expert_data.expert_name == delta_data.expert_name %}
+                            {{ expert_data.competence }}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h2>Third Table</h2>
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Expert Name</th>
+            {% for defect in defects %}
+                <th>{{ defect.name }} Delta</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for expert_name, expert_ratings in third_table.items %}
+            <tr>
+                <td>{{ expert_name }}</td>
+                {% for rating in expert_ratings %}
+                    <td>{{ rating }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>SUMA</td>
+            {% for suma in sums %}
+                <td>{{ suma }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Вага</td>
+            {% for weight in weights %}
+                <td>{{ weight }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Відхилення</td>
+            {% for deviation in deviations %}
+                <td>{{ deviation|floatformat:2 }}</td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Квадрат відхилення</td>
+            {% for squared_deviation in squared_deviations %}
+                <td>{{ squared_deviation|floatformat:2 }}</td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+    <div style="margin-bottom: 100px;"></div>
+
+{% endblock %}

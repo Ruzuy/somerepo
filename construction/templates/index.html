@@ -19,7 +19,7 @@
         <ul>
             {% for project in projects %}
                 <li>
-                    <a href="{% url 'formalization' pk=project.pk %}">{{ project.name }}</a>
+                    <a href="{% url 'show' pk=project.pk %}">{{ project.name }}</a>
                     <!-- Кнопка удаления проекта -->
                     <form method="POST" action="{% url 'delete_project' pk=project.pk %}" style="display:inline;">
                         {% csrf_token %}
